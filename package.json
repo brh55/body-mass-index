@@ -1,0 +1,32 @@
+{
+  "name": "body-mass-index",
+  "version": "1.0.0",
+  "description": "Calculate BMI in any unit and determine BMI category",
+  "license": "MIT",
+  "repository": "brh55/body-mass-index",
+  "author": {
+    "name": "Brandon Him",
+    "email": "brandonhim@live.com",
+    "url": "github.com/brh55/body-mass-index"
+  },
+  "engines": {
+    "node": ">=4"
+  },
+  "scripts": {
+    "test": "xo && ava"
+  },
+  "files": [
+    "index.js"
+  ],
+  "keywords": [
+    ""
+  ],
+  "dependencies": {
+    "convert-units": "^1.3.1",
+    "round-to": "^2.0.0"
+  },
+  "devDependencies": {
+    "ava": "^0.17.0",
+    "xo": "^0.17.0"
+  }
+}
