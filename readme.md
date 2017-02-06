@@ -2,7 +2,7 @@
 
 > Calculate the body mass index (BMI) with the freedom of multiple units
 >
-> bodyMassIndex('200 lb', '6ft 9in') => 21.4
+> **bodyMassIndex('200 lb', '6ft 9in') => 21.4**
 
 
 ## Install
@@ -25,7 +25,7 @@ Interchangeable Imperial and Metric Units
 
 ```js
 const bodyMassIndex = require('body-mass-index');
-bodyMassIndex('90.17 kg 1 lb 100 g', '145.27 cm 1ft 0.30m');
+bodyMassIndex('90.17kg 1lb 100g', '145.27cm 1ft 0.30m');
 // => 21.4
 ```
 
