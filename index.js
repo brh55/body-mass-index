@@ -1,40 +1,61 @@
 'use strict';
 const convert = require('convert-units');
+const roundTo = require('round-to');
 
-module.exports = (weight, height) => {
-	let kg = weight;
+module.exports = (weight, height, opts) => {
+	let kg;
 	let m = height;
+	opts = opts || {};
+	opts.round = opts.round || 1;
 
-	if (typeof weight === 'string') {
+	const numberPattern = '[-+]?[0-9]*\\.?[0-9]+';
+	const valueRegEx = new RegExp(`${numberPattern}`);
+
+	if (typeof weight === 'number') {
+		kg = weight;
+	} else if (typeof weight === 'string') {
 		// \d+\s?(mass units)
-		const units_pattern = new RegExp(`\d+\s?(${convert().possibilities('mass').join('|')})`, g);
-		const unit_pattern = new RegExp(convert().possibilities('mass').join('|'));
-		const weights = weight.match(units_pattern);
-		units = units.map(u => weight.match(unit_pattern));
-		const values = weight.match(/\d+/).filter(x => parseInt(x, 10));
+		const massGroup = convert().possibilities('mass').join('|');
+		const massRegEx = new RegExp(`((${numberPattern})\\s?(${massGroup}))`, 'g');
+		const unitRegEx = new RegExp(massGroup);
+		const masses = weight.match(massRegEx);
 
-		if (units.length > 1) {
-			kg = units.map((unit, index) => convert(values[index]).from(unit).to('kg'))
-					  .reduce((a, b) => a + b);
-
-		} else if (units[0] !== 'kg') {
-			kg = convert(values[0]).from(units[0]).to('kg');
-
-		} else {
-			kg = units[0];
+		if (!masses) {
+			throw new Error(`Expecting ${convert().possibilities('mass')} units`);
 		}
+
+		kg = masses.map(mass => [mass.match(valueRegEx)[0], mass.match(unitRegEx)[0]])
+					.map(mass => parseFloat(convert(mass[0]).from(mass[1]).to('kg')))
+					.reduce((a, b) => a + b);
+	} else {
+		throwTypeError('weight');
 	}
 
-	if (typeof height === 'string') {
-		// \d+\s?(length units)
-		const pattern = new RegExp(`\d+\s?(${convert().possibilities('length').join('|')})`, g);
-		const unit = height.match(pattern)[0];
-		m = parseInt(height.match(/\d+/)[0], 10);
-		// Rely on convert to throw error if n is undefined
-		if (unit !== 'm') {
-			m = convert(m).from(unit).to('m');
+	// @TODO - Find way to abstract this to abide by DRY
+	if (typeof height === 'number') {
+		m = convert(height).from('cm').to('m');
+	} else if (typeof height === 'string') {
+		const lengthGroup = convert().possibilities('length').join('|');
+		const lengthsRegEx = new RegExp(`((${numberPattern})\\s?(${lengthGroup}))`, 'g');
+		const unitRegEx = new RegExp(lengthGroup);
+		const lengths = height.match(lengthsRegEx);
+
+		if (!lengths) {
+			throw new Error(`Expecting ${convert().possibilities('mass')} units`);
 		}
+
+		m =	lengths.map(length => [length.match(valueRegEx)[0], length.match(unitRegEx)[0]])
+					.map(length => parseFloat(convert(length[0]).from(length[1]).to('m')))
+					.reduce((a, b) => a + b);
+	} else {
+		throwTypeError('height');
 	}
 
-	return kg / Math.pow(m, 2);
+	const BMI = kg / Math.pow(m, 2);
+
+	return (!BMI || BMI < 0) ? false : roundTo(BMI, opts.round);
 };
+
+function throwTypeError(arg) {
+	throw new TypeError(`Expecting ${arg} to be type string or number.`);
+}
