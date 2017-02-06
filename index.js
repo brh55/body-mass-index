@@ -44,7 +44,7 @@ module.exports = (weight, height, opts) => {
 			throw new Error(`Expecting ${convert().possibilities('mass')} units`);
 		}
 
-		m =	lengths.map(length => [length.match(valueRegEx)[0], length.match(unitRegEx)[0]])
+		m = lengths.map(length => [length.match(valueRegEx)[0], length.match(unitRegEx)[0]])
 					.map(length => parseFloat(convert(length[0]).from(length[1]).to('m')))
 					.reduce((a, b) => a + b);
 	} else {
